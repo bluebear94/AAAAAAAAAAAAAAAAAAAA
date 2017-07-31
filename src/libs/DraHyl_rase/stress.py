@@ -128,21 +128,29 @@ valid_short_codas = {
 def is_valid_coda_to_short(coda: str) -> bool:
   return coda in valid_short_codas
 
+valid_liquids = {
+  "r", "l", "ṡ", "ż"
+}
+
+def is_valid_liquid(liquid: str) -> bool:
+  return liquid in valid_liquids
+
 class Syllable:
-  def __init__(self, onset: str, nucleus: Nucleus, coda: str = ""):
+  def __init__(self, onset: str, liquid: str, nucleus: Nucleus, coda: str = ""):
     # A syllable cannot have both a diphthong nucleus and a coda
     if nucleus.typ() >= DIPHTHONG_LG and coda != "":
       raise MalformedSyllableException("Can't have both diphthong nucleus and coda!")
     if nucleus.typ() == SHORT and not is_valid_coda_to_short(coda) and coda != "":
       raise MalformedSyllableException(coda + " is not a valid coda to a short vowel!")
     self.onset = onset
+    self.liquid = liquid
     self.nucleus = nucleus
     self.coda = coda
   def decode(self, mode: int) -> Optional[str]:
     nstr = self.nucleus.decode(mode)
     if nstr is None: return None
-    return self.onset + nstr + self.coda
+    return self.onset + self.liquid + nstr + self.coda
 
-exsyll = Syllable("b", Short(I), "m")
-exsyll2 = Syllable("b", Long(O))
+exsyll = Syllable("b", "", Short(I), "m")
+exsyll2 = Syllable("b", "", Long(O))
 print(exsyll.decode(NO_ACCENT) + exsyll2.decode(VARIANT_ACCENT_2))
